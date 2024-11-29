@@ -9,17 +9,13 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 @Service
 @EnableScheduling
 public class StorageCache {
 	private static final Logger logger = LoggerFactory.getLogger(StorageCache.class);
 
-	private final Map<String, Lock> locks = new ConcurrentHashMap<>();
 	private final Cache<String, Authorization> cache;
 
 	@Autowired
@@ -28,33 +24,21 @@ public class StorageCache {
 	}
 
 	public void put(String key, String value) {
-		Lock lock = locks.computeIfAbsent(key, k -> new ReentrantLock());
-		lock.lock();
-		try {
-			Authorization authorization = cache.get(key);
-			if (authorization == null) {
-				authorization = new Authorization(key, new HashSet<>());
-			}
-			authorization.add(value);
-			cache.put(key, authorization);
-		} finally {
-			lock.unlock();
+		Authorization authorization = cache.get(key);
+		if (authorization == null) {
+			authorization = new Authorization(key, new HashSet<>());
 		}
+		authorization.add(value);
+		cache.put(key, authorization);
 	}
 
 	public void remove(String key, String value) {
-		Lock lock = locks.computeIfAbsent(key, k -> new ReentrantLock());
-		lock.lock();
-		try {
-			Authorization authorization = cache.get(key);
-			if (authorization == null) {
-				authorization = new Authorization(key, new HashSet<>());
-			}
-			authorization.remove(value);
-			cache.put(key, authorization);
-		} finally {
-			lock.unlock();
+		Authorization authorization = cache.get(key);
+		if (authorization == null) {
+			authorization = new Authorization(key, new HashSet<>());
 		}
+		authorization.remove(value);
+		cache.put(key, authorization);
 	}
 
 	@Scheduled(fixedRate = 5, timeUnit = TimeUnit.SECONDS)
@@ -62,7 +46,7 @@ public class StorageCache {
 		StringBuilder sb = new StringBuilder();
 		for (Map.Entry<String, Authorization> entry : cache.entrySet()) {
 			sb.append(entry.getKey()).append(": ");
-			for (String value : entry.getValue().keys) {
+			for (String value : entry.getValue().getKeys()) {
 				sb.append(value).append(", ");
 			}
 			sb.append("\n");
@@ -73,7 +57,7 @@ public class StorageCache {
 	public Map<String, Set<String>> state() {
 		Map<String, Set<String>> result = new HashMap<>();
 		for (Map.Entry<String, Authorization> entry : cache.entrySet()) {
-			result.put(entry.getKey(), new HashSet<>(entry.getValue().keys));
+			result.put(entry.getKey(), new HashSet<>(entry.getValue().getKeys()));
 		}
 		return result;
 	}

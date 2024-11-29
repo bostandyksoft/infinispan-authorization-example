@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<infinispan
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="urn:infinispan:config:15.0 http://www.infinispan.org/schemas/infinispan-config-15.0.xsd"
+        xmlns="urn:infinispan:config:15.0">
+
+    <cache-container default-cache="authorizationCache">
+        <transport cluster="OisHub" stack="tcp">
+            <property name="jgroups.tcpping.initial_hosts">tsk-avmakarov.ois.ru[7800]</property>
+            <property name="jgroups.tcp.address">tsk-avmakarov.ois.ru</property>
+            <property name="jgroups.tcp.port">7800</property>
+        </transport>
+
+        <distributed-cache name="authorizationCache">
+        </distributed-cache>
+    </cache-container>
+</infinispan>

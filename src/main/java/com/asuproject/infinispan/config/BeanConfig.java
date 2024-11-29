@@ -17,11 +17,15 @@ import java.util.concurrent.TimeUnit;
 public class BeanConfig {
 
 	@Bean
-	public EmbeddedCacheManager defaultCacheManager() {
-		GlobalConfigurationBuilder global = GlobalConfigurationBuilder.defaultClusteredBuilder();
-		global.transport().clusterName("OisHub").serialization().addContextInitializer(new SerializationContextInitializerImpl());
-
-		return new DefaultCacheManager(global.build());
+	public EmbeddedCacheManager defaultCacheManager() throws Exception {
+		return new DefaultCacheManager(
+				GlobalConfigurationBuilder.defaultClusteredBuilder()
+						.transport()
+						.defaultTransport()
+						.clusterName("qa-cluster")
+						.addProperty("configurationFile", "jgroups.xml")
+						.build()
+		);
 	}
 
 	@Bean

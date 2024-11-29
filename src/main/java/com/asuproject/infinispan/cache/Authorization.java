@@ -8,13 +8,12 @@ import java.util.Set;
 
 public class Authorization {
 
-	@ProtoField(number = 1)
-	final String id;
+	private String id;
+	private Set<String> keys;
 
-	@ProtoField(number = 2)
-	final Set<String> keys;
+	public Authorization() {
+	}
 
-	@ProtoFactory
 	public Authorization(String id, Set<String> keys) {
 		this.id = id;
 		this.keys = keys;
@@ -26,5 +25,23 @@ public class Authorization {
 
 	public void remove(String value) {
 		keys.remove(value);
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
+
+	public void setKeys(Set<String> keys) {
+		this.keys = keys;
+	}
+
+	@ProtoField(number = 1)
+	public String getId() {
+		return id;
+	}
+
+	@ProtoField(number = 2)
+	public Set<String> getKeys() {
+		return keys;
 	}
 }
